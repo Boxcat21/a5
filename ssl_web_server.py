@@ -30,27 +30,60 @@ def create_ssl_context(cert_file: str, key_file: Optional[str]) -> ssl.SSLContex
     # TODO: Create an SSL context for the server side. You will need to load your certificate.
     pass
 
-def setup_server(
-    host_ip: str,
-    host_port: int
-) -> socket.socket:
-    # TODO: Create a TCP server socket and start listening for connections
-    pass
+def setup_server(host_ip: str, host_port: int) -> socket.socket:
+    try:
+        # Create a TCP server socket
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        # Bind the socket to the specified IP and port
+        server_socket.bind((host_ip, host_port))
+
+        # Start listening for incoming connections
+        server_socket.listen(5)  # Accept up to 5 queued connections
+        print(f"Server listening on {host_ip}:{host_port}")
+
+        return server_socket
+    except Exception as e:
+        print(f"An error occurred while setting up the server: {e}")
+        raise
 
 def setup_connection(
     listen_socket: socket.socket,
     ssl_context: Optional[ssl.SSLContext] = None
 ) -> socket.socket | ssl.SSLSocket:
-    # TODO accept a connection
-    # TODO if ssl_context is not None, wrap socket in SSL context
-    pass
+    try:
+        # Accept a new connection
+        client_socket, client_address = listen_socket.accept()
+        print(f"Connection accepted from {client_address}")
+
+        # Wrap the socket in SSL context if provided
+        if ssl_context:
+            secure_socket = ssl_context.wrap_socket(client_socket, server_side=True)
+            print("Connection secured with SSL/TLS")
+            return secure_socket
+        else:
+            return client_socket
+    except Exception as e:
+        print(f"An error occurred while setting up the connection: {e}")
+        raise
 
 
 def handle_request(s: socket.socket | ssl.SSLSocket ) -> bytes:
     # TODO read client request and responds with HTML_RESPONSE
     # TODO close connection after responding
-    pass
+    try:
+        request = s.recv(10000)
+
+        print("Received request:", request.decode('utf-8', 'ignore'))
+
+        s.sendall(HTML_RESPONSE) # send back our webpage
+    except Exception as e:
+        print("error with request")
+        return b""
+    finally:
+        s.close()
+    
+    return HTML_RESPONSE
 
 def main(args):
     if args.ssl:

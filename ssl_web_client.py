@@ -17,6 +17,7 @@ def craft_http_request(host: str, path: str) -> str:
 
 def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SSLSocket:
     # TODO: Create a TCP socket and wrap it in an SSL context if use_ssl is true
+
     try:
         # Create a standard TCP socket
         tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,10 +30,11 @@ def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SS
             secure_socket = ssl_context.wrap_socket(tcp_socket, server_hostname=host)
             
             # Connect the SSL socket to the host and port
+            port = 443
             secure_socket.connect((host, port))
             return secure_socket
         else:
-            # Connect the plain TCP socket to the host and port
+            # Connect the plain TCP socket to the host and port            
             tcp_socket.connect((host, port))
             return tcp_socket
     except Exception as e:
@@ -42,6 +44,7 @@ def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SS
 
 
 def get_peer_certificate(ssl_socket: ssl.SSLSocket) -> Dict[str, Any]:
+
     # TODO: Get the peer certificate from the connected SSL socket.
     try:
         cert = ssl_socket.getpeercert()
@@ -56,17 +59,20 @@ def get_peer_certificate(ssl_socket: ssl.SSLSocket) -> Dict[str, Any]:
 def send_http_request(s: socket.socket | ssl.SSLSocket, request_string: str) -> str:
     # TODO: Send an HTTPS request to the server using the SSL socket.
     # TODO: receive response and return it as a string
+
     try:
         # Send the HTTP request
         s.sendall(request_string.encode('utf-8'))
 
         # Receive the response
-        response = b""
-        while True:
-            data = s.recv(4096)
-            if not data:
-                break
-            response += data
+        response = s.recv(10000)
+        # while True:
+        #     data = s.recv(4096)
+        #     if not data:
+        #         break
+        #     response += data
+        #     break
+            # print('response per iteration\n\n',response)
 
         # Return the response as a string
         return response.decode('utf-8')
@@ -94,8 +100,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "host",
-        default="www.example.com",
+        "--host",
+        default="news.ycombinator.com",
         type=str,
         help="The url/host we connect to",
     )
