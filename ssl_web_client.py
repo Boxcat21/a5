@@ -17,17 +17,62 @@ def craft_http_request(host: str, path: str) -> str:
 
 def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SSLSocket:
     # TODO: Create a TCP socket and wrap it in an SSL context if use_ssl is true
-    pass
+    try:
+        # Create a standard TCP socket
+        tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        if use_ssl:
+            # Create an SSL context with secure defaults
+            ssl_context = ssl.create_default_context()
+
+            # Wrap the socket with the SSL context
+            secure_socket = ssl_context.wrap_socket(tcp_socket, server_hostname=host)
+            
+            # Connect the SSL socket to the host and port
+            secure_socket.connect((host, port))
+            return secure_socket
+        else:
+            # Connect the plain TCP socket to the host and port
+            tcp_socket.connect((host, port))
+            return tcp_socket
+    except Exception as e:
+        # Handle exceptions (e.g., connection errors)
+        print(f"An error occurred: {e}")
+        raise
 
 
 def get_peer_certificate(ssl_socket: ssl.SSLSocket) -> Dict[str, Any]:
     # TODO: Get the peer certificate from the connected SSL socket.
-    pass
+    try:
+        cert = ssl_socket.getpeercert()
+        if not cert:
+            raise ValueError("no certificate sad")
+        else:
+            return cert
+    except Exception as e:
+        print(f"An error occurred while retrieving the peer certificate: {e}")
+        raise
 
 def send_http_request(s: socket.socket | ssl.SSLSocket, request_string: str) -> str:
     # TODO: Send an HTTPS request to the server using the SSL socket.
     # TODO: receive response and return it as a string
-    pass
+    try:
+        # Send the HTTP request
+        s.sendall(request_string.encode('utf-8'))
+
+        # Receive the response
+        response = b""
+        while True:
+            data = s.recv(4096)
+            if not data:
+                break
+            response += data
+
+        # Return the response as a string
+        return response.decode('utf-8')
+    except Exception as e:
+        print(f"An error occurred while sending the HTTP request: {e}")
+        raise
 
 
 def main(args):
