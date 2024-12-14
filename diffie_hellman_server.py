@@ -8,9 +8,9 @@ from typing import Tuple
 
 
 # TODO feel free to use this helper or not
-def receive_common_info(server_socket: socket.socket) -> Tuple[int, int]:
+def receive_common_info(client_socket: socket.socket) -> Tuple[int, int]:
     # TODO: Wait for a client message that sends a base number.
-    data, addr = server_socket.recvfrom(1024)
+    data = client_socket.recv(1024)
     recvd = json.loads(data.decode())
     assert recvd["type"] == "Ng"
     N, g = recvd["N"], recvd["g"]
@@ -23,11 +23,13 @@ def receive_common_info(server_socket: socket.socket) -> Tuple[int, int]:
 # Do NOT modify this function signature, it will be used by the autograder
 def dh_exchange_server(server_address: str, server_port: int) -> Tuple[int, int, int, int]:
     # TODO: Create a server socket. can be UDP or TCP.
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((server_address, server_port))
+    server_socket.listen(5)
+    client_socket, addr = server_socket.accept()
     # TODO: Read client's proposal for base and modulus using receive_common_info
 
-    g, N = receive_common_info(server_socket)
+    g, N = receive_common_info(client_socket)
 
     # TODO: Generate your own secret key
 
@@ -37,7 +39,7 @@ def dh_exchange_server(server_address: str, server_port: int) -> Tuple[int, int,
 
     # TODO: Exchange messages with the client
 
-    data, addr = server_socket.recvfrom(1024)
+    data = client_socket.recv(1024)
     recvd = json.loads(data.decode())
     assert recvd["type"] == "gx"
     gx = recvd["gx"]
@@ -46,7 +48,7 @@ def dh_exchange_server(server_address: str, server_port: int) -> Tuple[int, int,
     gy_str = json.dumps(
         {"type": "gy", "gy": gy}
     ).encode()
-    server_socket.sendto(gy_str, addr)
+    client_socket.send(gy_str)
 
     # TODO: Compute the shared secret.
 

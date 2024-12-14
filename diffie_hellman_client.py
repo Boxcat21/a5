@@ -27,7 +27,7 @@ def send_common_info(sock: socket.socket, server_address: str, server_port: int)
 # Do NOT modify this function signature, it will be used by the autograder
 def dh_exchange_client(server_address: str, server_port: int) -> Tuple[int, int, int, int]:
     # TODO: Create a socket 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # Connect to the server
     s.connect((server_address, server_port))
     # TODO: Send the proposed base and modulus number to the server using send_common_info
