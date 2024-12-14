@@ -11,9 +11,9 @@ import json
 def send_common_info(sock: socket.socket, server_address: str, server_port: int) -> Tuple[int, int]:
     # TODO: Connect to the server and propose a base number and prime
     # TODO: You can generate these randomly, or just use a fixed set
-    g = 11
+    N = 998244353
+    g = random.randint(2, N - 1)
     print("Base int is",g)
-    N = 31
     print("Modulus is", N)
 
     pkt_str = json.dumps(
