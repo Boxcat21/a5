@@ -4,6 +4,7 @@ import argparse
 import random
 from pathlib import Path
 from typing import Tuple
+import json
 
 
 # TODO feel free to use this helper or not
@@ -11,19 +12,22 @@ def send_common_info(sock: socket.socket, server_address: str, server_port: int)
     # TODO: Connect to the server and propose a base number and prime
     # TODO: You can generate these randomly, or just use a fixed set
     g = 11
+    print("Base int is",g)
     N = 31
+    print("Modulus is", N)
 
     pkt_str = json.dumps(
-        {"type": "data", "seq": seq, "id": packet_id, "payload": data[seq[0]:seq[1]]}
+        {"type": "Ng", "N": N, "g": g}
     ).encode()
 
+    sock.send(pkt_str)
     # TODO: Return the tuple (base, prime modulus)
     return (g, N)
 
 # Do NOT modify this function signature, it will be used by the autograder
 def dh_exchange_client(server_address: str, server_port: int) -> Tuple[int, int, int, int]:
     # TODO: Create a socket 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     # Connect to the server
     s.connect((server_address, server_port))
     # TODO: Send the proposed base and modulus number to the server using send_common_info
@@ -33,6 +37,7 @@ def dh_exchange_client(server_address: str, server_port: int) -> Tuple[int, int,
     # TODO: Come up with a random secret key
 
     x = random.randint(0, N - 2)
+    print("Secret is", x)
 
     # TODO: Calculate the message the client sends using the secret integer.
 
@@ -41,12 +46,21 @@ def dh_exchange_client(server_address: str, server_port: int) -> Tuple[int, int,
     # TODO: Exhange messages with the server
 
     # send gx
+    gx_str = json.dumps(
+        {"type": "gx", "gx": gx}
+    ).encode()
+    s.send(gx_str)
     #receive gy
-    gy = 0
+    data = s.recv(1024)
+    recvd = json.loads(data.decode())
+    assert recvd["type"] == "gy"
+    gy = recvd["gy"]
+    print("Int received from peer is", gy)
 
     # TODO: Calculate the secret using your own secret key and server message
 
     gxy = pow(gy, x, N)
+    print("Shared secret is", gxy)
 
     # TODO: Return the base number, the modulus, the private key, and the shared secret
 
