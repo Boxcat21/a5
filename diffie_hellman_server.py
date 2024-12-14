@@ -18,16 +18,28 @@ def dh_exchange_server(server_address: str, server_port: int) -> Tuple[int, int,
 
     # TODO: Read client's proposal for base and modulus using receive_common_info
 
+    g, N = receive_common_info()
+
     # TODO: Generate your own secret key
+
+    y = random.randint(0, N - 2)
+    gy = pow(g, y, N)
 
     # TODO: Exchange messages with the client
 
+    gx = 0 #receive gx
+    #send gy
+
     # TODO: Compute the shared secret.
 
+    gxy = pow(gx, y, N)
+
     # TODO: Return the base number, prime modulus, the secret integer, and the shared secret
-    pass
+    return (g, N, y, gxy)
 
 def main(args):
+    if args.seed:
+        random.seed(args.seed)
     dh_exchange_server(args.address, args.port)
 
 if __name__ == "__main__":
