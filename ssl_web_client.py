@@ -26,11 +26,13 @@ def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SS
             # Create an SSL context with secure defaults
             ssl_context = ssl.create_default_context()
 
+            ssl_context.check_hostname=False
+            ssl_context.verify_mode=ssl.CERT_NONE
+
             # Wrap the socket with the SSL context
             secure_socket = ssl_context.wrap_socket(tcp_socket, server_hostname=host)
             
             # Connect the SSL socket to the host and port
-            port = 443
             secure_socket.connect((host, port))
             return secure_socket
         else:
