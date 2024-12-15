@@ -30,17 +30,17 @@ def create_ssl_context(cert_file: str, key_file: Optional[str]) -> ssl.SSLContex
     # TODO: Create an SSL context for the server side. You will need to load your certificate.
     # Create an SSL context with secure defaults
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        # overrides for self-signed certificate REMOVE
+    context.check_hostname = False
+    context.verify_mode=ssl.CERT_NONE
 
     try:
         # Load the server certificate file
         if key_file:
-            context.load_cert_chain(certfile=cert_file, key_file=key_file)
+            context.load_cert_chain(certfile=cert_file, keyfile=key_file)
         else:
             context.load_cert_chain(certfile=cert_file)
         
-        # overrides for self-signed certificate REMOVE
-        context.check_hostname = False
-        context.verify_mode=ssl.CERT_NONE
 
 
         return context

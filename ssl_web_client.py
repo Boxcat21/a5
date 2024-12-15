@@ -28,7 +28,8 @@ def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SS
 
             # overrides for self-signed certificate REMOVE
             ssl_context.check_hostname=False
-            ssl_context.verify_mode=ssl.CERT_NONE
+            ssl_context.verify_mode=ssl.CERT_OPTIONAL
+            ssl_context.load_verify_locations(cafile="cert.pem")
 
             # Wrap the socket with the SSL context
             secure_socket = ssl_context.wrap_socket(tcp_socket, server_hostname=host)
@@ -51,7 +52,7 @@ def get_peer_certificate(ssl_socket: ssl.SSLSocket) -> Dict[str, Any]:
     # TODO: Get the peer certificate from the connected SSL socket.
     try:
         cert = ssl_socket.getpeercert()
-        if not cert:
+        if cert is None:
             raise ValueError("no certificate sad")
         else:
             return cert
