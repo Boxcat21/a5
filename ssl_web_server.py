@@ -34,9 +34,9 @@ def create_ssl_context(cert_file: str, key_file: Optional[str]) -> ssl.SSLContex
     try:
         # Load the server certificate file
         if key_file:
-            context.load_cert_chain(cert_file=cert_file, key_file=key_file)
+            context.load_cert_chain(certfile=cert_file, key_file=key_file)
         else:
-            context.load_cert_chain(cert_file=cert_file)
+            context.load_cert_chain(certfile=cert_file)
         
         # overrides for self-signed certificate REMOVE
         context.check_hostname = False
