@@ -28,7 +28,24 @@ Content-Type: text/html
 
 def create_ssl_context(cert_file: str, key_file: Optional[str]) -> ssl.SSLContext:
     # TODO: Create an SSL context for the server side. You will need to load your certificate.
-    pass
+    # Create an SSL context with secure defaults
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+
+    try:
+        # Load the server certificate file
+        if key_file:
+            context.load_cert_chain(cert_file=cert_file, key_file=key_file)
+        else:
+            context.load_cert_chain(cert_file=cert_file)
+        
+        # overrides for self-signed certificate REMOVE
+        context.check_hostname = False
+        context.verify_mode=ssl.CERT_NONE
+
+
+        return context
+    except Exception as e:
+        raise ValueError(f"An error occurred while loading the certificate: {e}")
 
 def setup_server(host_ip: str, host_port: int) -> socket.socket:
     try:

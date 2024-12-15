@@ -26,6 +26,7 @@ def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SS
             # Create an SSL context with secure defaults
             ssl_context = ssl.create_default_context()
 
+            # overrides for self-signed certificate REMOVE
             ssl_context.check_hostname=False
             ssl_context.verify_mode=ssl.CERT_NONE
 
