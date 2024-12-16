@@ -27,9 +27,9 @@ def create_socket(host: str, port: int, use_ssl: bool) -> socket.socket | ssl.SS
             ssl_context = ssl.create_default_context()
 
             # overrides for self-signed certificate REMOVE
-            ssl_context.check_hostname=False
-            ssl_context.verify_mode=ssl.CERT_OPTIONAL
-            ssl_context.load_verify_locations(cafile="cert.pem")
+            # ssl_context.check_hostname=False
+            # ssl_context.verify_mode=ssl.CERT_OPTIONAL
+            # ssl_context.load_verify_locations(cafile="cert.pem")
 
             # Wrap the socket with the SSL context
             secure_socket = ssl_context.wrap_socket(tcp_socket, server_hostname=host)
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--host",
+        "host",
         default="news.ycombinator.com",
         type=str,
         help="The url/host we connect to",
